@@ -1,15 +1,22 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Результат поиска</title>
+    <title>Рестораны</title>
 </head>
 <body>
 <div align="center">
-    <h2>Результат поиска</h2>
+    <h2>${param.action == 'create' ? 'Новый ресторан' : 'Редактировать ресторан'}</h2>
+    <form method="get" action="/restaurants/search">
+        <input type="text" name="keyword"/> &nbsp;
+        <input type="submit" value="Поиск">
+    </form>
+
+    <h3>
+        <a href="restaurants/new"> Новый ресторан</a>
+    </h3>
     <table border="1" cellpadding="5">
         <tr>
             <th>ID</th>
@@ -17,7 +24,7 @@
             <th>Дата регистрации</th>
             <th>Action</th>
         </tr>
-        <c:forEach items="${result}" var="restaurant">
+        <c:forEach items="${restaurants}" var="restaurant">
             <tr>
                 <td>${restaurant.id}</td>
                 <td>${restaurant.name}</td>
@@ -32,7 +39,7 @@
             </tr>
         </c:forEach>
     </table>
-    <a href="/restaurants">Назад</a>
 </div>
+
 </body>
 </html>

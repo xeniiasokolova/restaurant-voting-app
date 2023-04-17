@@ -22,37 +22,37 @@ public class UserController {
     @RequestMapping("/")
     public ModelAndView home() {
         List<User> users = userService.getAll();
-        ModelAndView mav = new ModelAndView("index_user");
+        ModelAndView mav = new ModelAndView("users");
         mav.addObject("users", users);
         log.info("getAll()");
         return mav;
     }
 
     @RequestMapping("/new")
-    public String newUser(Map<String, Object> model) {
+    public String create(Map<String, Object> model) {
         User user = new User();
         log.info("create {}", user);
         model.put("user", user);
-        return "new_user";
+        return "userForm";
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public String saveUser(@ModelAttribute("user") User user) {
+    public String save(@ModelAttribute("user") User user) {
         log.info("save {}", user);
         userService.save(user);
         return "redirect:/";
     }
 
     @RequestMapping("/delete")
-    public String deleteUser(@RequestParam Long id) {
+    public String delete(@RequestParam Long id) {
         log.info("delete {}", id);
         userService.delete(id);
         return "redirect:/";
     }
 
     @RequestMapping("/edit")
-    public ModelAndView editUser(@RequestParam Long id) {
-        ModelAndView mav = new ModelAndView("edit_user");
+    public ModelAndView update(@RequestParam Long id) {
+        ModelAndView mav = new ModelAndView("userForm");
         User user = userService.get(id);
         log.info("update {} with id={}", user, id);
         mav.addObject("user", user);
@@ -61,10 +61,10 @@ public class UserController {
 
     @RequestMapping("/search")
     public ModelAndView search(@RequestParam String keyword) {
-        List<User> result = userService.search(keyword);
-        log.info("search {} with keyword={}", result, keyword);
-        ModelAndView mav = new ModelAndView("search_user");
-        mav.addObject("result", result);
+        List<User> users = userService.search(keyword);
+        log.info("search {} with keyword={}", users, keyword);
+        ModelAndView mav = new ModelAndView("users");
+        mav.addObject("users", users);
         return mav;
     }
 }
