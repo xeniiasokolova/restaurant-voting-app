@@ -106,7 +106,7 @@ public class RestaurantController {
     @RequestMapping(DISHES_LINK +"/delete")
     public String deleteDish(@RequestParam Long id, @PathVariable(value = "restaurantId") Long restaurantId) {
         log.info("delete {}", id);
-        dishService.delete(id);
+        dishService.deleteById(id);
         return "redirect:" + RESTAURANTS_LINK + "/" + restaurantId.toString();
     }
 

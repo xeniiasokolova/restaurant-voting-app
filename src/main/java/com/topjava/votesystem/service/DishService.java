@@ -11,7 +11,11 @@ import java.util.List;
 public class DishService {
 
     @Autowired
-    DishRepository repository;
+    private final DishRepository repository;
+
+    public DishService(DishRepository repository) {
+        this.repository = repository;
+    }
 
     public void save(Dish dish) {
         repository.save(dish);
@@ -25,7 +29,7 @@ public class DishService {
         return repository.findById(id).get();
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         repository.deleteById(id);
     }
 

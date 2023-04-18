@@ -13,7 +13,11 @@ import java.util.List;
 public class RestaurantService {
 
     @Autowired
-    RestaurantRepository repository;
+    private final RestaurantRepository repository;
+
+    public RestaurantService(RestaurantRepository repository) {
+        this.repository = repository;
+    }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void save(Restaurant restaurant) {
