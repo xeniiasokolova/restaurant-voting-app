@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Long> {
-    @Query(value = "SELECT d FROM Dish d WHERE d.name LIKE '%' || :keyword || '%'"
-            + " OR d.description LIKE '%' || :keyword || '%'")
-    public List<Dish> search(@Param("keyword") String keyword);
+    @Query(value = "SELECT d FROM Dish d WHERE d.restaurant.id =:restaurantId AND (d.name LIKE '%' || :keyword || '%'"
+            + " OR d.description LIKE '%' || :keyword || '%')")
+    public List<Dish> search(@Param("restaurantId") long restaurantId, @Param("keyword") String keyword);
 }

@@ -2,69 +2,54 @@ package com.topjava.votesystem.controller;
 
 import com.topjava.votesystem.model.User;
 import com.topjava.votesystem.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
+import com.topjava.votesystem.util.ServletUtil;
 
 @Controller
+@RequestMapping("/users")
 public class UserController {
-
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
 
-    @RequestMapping("/")
-    public ModelAndView home() {
-        List<User> users = userService.getAll();
-        ModelAndView mav = new ModelAndView("users");
-        mav.addObject("users", users);
-        log.info("getAll()");
-        return mav;
-    }
-
-    @RequestMapping("/new")
-    public String create(Map<String, Object> model) {
-        User user = new User();
-        log.info("create {}", user);
-        model.put("user", user);
+    @GetMapping("/create")
+    public String create(Model model) {
+        model.addAttribute("user", new User());
         return "userForm";
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public String save(@ModelAttribute("user") User user) {
-        log.info("save {}", user);
-        userService.save(user);
-        return "redirect:/";
+    @GetMapping("/update")
+    public String update(HttpServletRequest request, Model model) {
+        model.addAttribute("user", userService.get(ServletUtil.getId(request)));
+        return "userForm";
     }
 
-    @RequestMapping("/delete")
-    public String delete(@RequestParam Long id) {
-        log.info("delete {}", id);
-        userService.delete(id);
-        return "redirect:/";
+    @PostMapping("/save")
+    public String updateOrCreate(HttpServletRequest request) {
+        User user = new User(request.getParameter("name"), request.getParameter("email"), request.getParameter("password"));
+        if (request.getParameter("id").isEmpty()) {
+            userService.create(user);
+        } else {
+            userService.update(user, Long.parseLong(request.getParameter("id")));
+        }
+        return "redirect:/users";
     }
 
-    @RequestMapping("/edit")
-    public ModelAndView update(@RequestParam Long id) {
-        ModelAndView mav = new ModelAndView("userForm");
-        User user = userService.get(id);
-        log.info("update {} with id={}", user, id);
-        mav.addObject("user", user);
-        return mav;
+    @GetMapping("/delete")
+    public String delete(HttpServletRequest request) {
+        userService.delete(ServletUtil.getId(request));
+        return "redirect:/users";
     }
 
-    @RequestMapping("/search")
-    public ModelAndView search(@RequestParam String keyword) {
-        List<User> users = userService.search(keyword);
-        log.info("search {} with keyword={}", users, keyword);
-        ModelAndView mav = new ModelAndView("users");
-        mav.addObject("users", users);
-        return mav;
+    @GetMapping("/search")
+    public String search(HttpServletRequest request, Model model) {
+        if (ServletUtil.getKeyword(request).equals("")) return "redirect:/users";
+        model.addAttribute("users", userService.search(ServletUtil.getKeyword(request)));
+        return "users";
     }
 }

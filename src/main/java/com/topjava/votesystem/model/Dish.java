@@ -33,10 +33,15 @@ public class Dish extends AbstractRegisteredEntity {
     private Float price;
 
 
-    public Dish(String name, String description, Float price) {
+    public Dish(Restaurant restaurant, String name, String description, Float price) {
         super(name, LocalDateTime.now());
+        this.restaurant = restaurant;
         this.description = description;
         this.price = price;
+    }
+
+    public Dish(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
     public Dish() {
@@ -59,7 +64,6 @@ public class Dish extends AbstractRegisteredEntity {
         this.restaurant = restaurant;
     }
 
-
     public String getDescription() {
         return description;
     }
@@ -76,13 +80,17 @@ public class Dish extends AbstractRegisteredEntity {
         this.price = price;
     }
 
+    public boolean isNew() {
+        return this.id == null;
+    }
 
     @Override
     public String toString() {
         return "Dish {" +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price.toString() +
+                ", restaurantId='" + restaurant.getId() + '\'' +
                 '}';
     }
 }

@@ -1,39 +1,39 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Меню</title>
-</head>
+<title><spring:message code="menu.name"/></title>
 <body>
 <div align="center">
-    <h2>${param.action == 'create' ? 'Новое блюдо' : 'Редактировать блюдо'}</h2>
-    <form:form action="save" method="post" modelAttribute="dish">
-        <table border="0" cellpadding="5">
-            <tr>
-                <td>ID: </td>
-                <td>${dish.id}
-                    <form:hidden path="id"/>
-                </td>
-            </tr>
-            <tr>
-                <td>Имя: </td>
-                <td><form:input path="name" /></td>
-            </tr>
-            <tr>
-                <td>Описание: </td>
-                <td><form:input path="description" /></td>
-            </tr>
-            <tr>
-                <td>Цена: </td>
-                <td><form:input path="price" /></td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="submit" value="Сохранить"></td>
-            </tr>
-        </table>
-    </form:form>
+    <section>
+        <jsp:useBean id="dish" type="com.topjava.votesystem.model.Dish" scope="request"/>
+        <h3><spring:message code="${dish.isNew() ? 'dish.add' : 'dish.edit'}"/></h3>
+        <hr>
+        <form:form action="save" method="post">
+            <input type="hidden" name="id" value="${dish.id}">
+            <input type="hidden" name="restaurantid" value="${dish.restaurant.id}">
+            <table border="0" cellpadding="6">
+                <tr>
+                    <td><spring:message code="dish.name"/>:</td>
+                    <td><input type="text" value="${dish.name}" size=30 name="name" required></td>
+                </tr>
+                <tr>
+                    <td><spring:message code="dish.description"/>:</td>
+                    <td><input type="text" value="${dish.description}" size=30 name="description" required></td>
+                </tr>
+                <tr>
+                    <td><spring:message code="dish.price"/>:</td>
+                    <td><input type="text" value="${dish.price}" size=30 name="price" required></td>
+                </tr>
+            </table>
+
+            <button type="submit"><spring:message code="common.save"/></button>
+            <button onclick="window.history.back()" type="button"><spring:message
+                    code="common.cancel"/></button>
+
+        </form:form>
+    </section>
 </div>
 </body>
 </html>

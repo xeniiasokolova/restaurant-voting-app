@@ -2,6 +2,8 @@ package com.topjava.votesystem.service;
 
 import com.topjava.votesystem.model.User;
 import com.topjava.votesystem.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -12,7 +14,7 @@ import java.util.List;
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserService {
-
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private final UserRepository repository;
 
@@ -21,11 +23,12 @@ public class UserService {
     }
 
     public void save(User user) {
+        log.info("save {}", user);
         repository.save(user);
     }
 
     public List<User> getAll() {
-        return (List<User>) repository.findAll();
+        return repository.findAll();
     }
 
     public User get(Long id) {
@@ -33,11 +36,24 @@ public class UserService {
     }
 
     public void delete(Long id) {
+        log.info("delete {}", id);
         repository.deleteById(id);
     }
 
-    public List<User> search(String keyword) {
-        return repository.search(keyword);
+    public User create(User user) {
+        log.info("create {}", user);
+        return repository.save(user);
     }
 
+    public void update(User user, Long userId) {
+        user.setId(userId);
+        log.info("update {} with id={}", user, userId);
+        repository.save(user);
+    }
+
+    public List<User> search(String keyword) {
+        List<User> users = repository.search(keyword);
+        log.info("search {} with keyword={}", users, keyword);
+        return users;
+    }
 }

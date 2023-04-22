@@ -1,11 +1,19 @@
 package com.topjava.votesystem.model;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.util.CollectionUtils;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -17,7 +25,6 @@ public class User extends AbstractRegisteredEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "global_seq_users")
     private Long id;
 
-   // private Integer roleId;
 
     @Email
     @NotBlank
@@ -37,11 +44,30 @@ public class User extends AbstractRegisteredEntity {
     @Column(name = "datetime_vote", columnDefinition = "timestamp default now()")
     private LocalDateTime dateTimeVote;
 
+
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role"}, name = "uk_user_role")})
+    @Column(name = "role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @BatchSize(size = 200)
+    @JoinColumn
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Role> roles;
+
     public User(String name, String email, String password) {
         super(name, LocalDateTime.now());
         this.email = email;
         this.password = password;
         this.isVoted = false;
+    }
+
+    public User(String name, String email, String password, Collection<Role> roles) {
+        super(name, LocalDateTime.now());
+        this.email = email;
+        this.password = password;
+        this.isVoted = false;
+        setRoles(roles);
     }
 
     public User() {
@@ -55,14 +81,6 @@ public class User extends AbstractRegisteredEntity {
     public void setId(Long id) {
         this.id = id;
     }
-
-  /*  public Integer getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
-    }*/
 
     public String getEmail() {
         return email;
@@ -99,11 +117,23 @@ public class User extends AbstractRegisteredEntity {
         this.dateTimeVote = dateTimeVote;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = CollectionUtils.isEmpty(roles) ? EnumSet.noneOf(Role.class) : EnumSet.copyOf(roles);
+    }
+
+    public boolean isNew() {
+        return this.id == null;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-             //   ", roleId=" + roleId +
+                ", roles=" + roles +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

@@ -48,9 +48,13 @@ public class Restaurant extends AbstractRegisteredEntity {
         this.dishes = dishes;
     }
 
+    public boolean isNew() {
+        return this.id == null;
+    }
+
     @Override
     public String toString() {
         return "Restaurants{" +
-                ", name='" + name +'}';
+                "name='" + name +'}';
     }
 }
