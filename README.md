@@ -2,7 +2,7 @@
 This app is a voting system for deciding where to have lunch
 
 Technical requirement:
-Design and implement a REST API using Hibernate/Spring/SpringMVC (Spring-Boot preferred!) without frontend.
+Design and implement a REST API using Hibernate/Spring/SpringMVC or Spring-Boot.
 
 The task is:
 Build a voting system for deciding where to have lunch.
