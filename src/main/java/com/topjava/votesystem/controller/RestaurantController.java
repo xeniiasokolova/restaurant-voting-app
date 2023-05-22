@@ -1,7 +1,10 @@
 package com.topjava.votesystem.controller;
 
 import com.topjava.votesystem.model.Restaurant;
+import com.topjava.votesystem.model.User;
 import com.topjava.votesystem.service.RestaurantService;
+import com.topjava.votesystem.service.UserService;
+import com.topjava.votesystem.util.SecurityUtil;
 import com.topjava.votesystem.util.ServletUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,12 +14,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 
+
 @Controller
 @RequestMapping("/restaurants")
 public class RestaurantController {
 
     @Autowired
     protected RestaurantService restaurantService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/create")
     public String create(Model model) {
@@ -53,4 +60,16 @@ public class RestaurantController {
         model.addAttribute("restaurants", restaurantService.search(ServletUtil.getKeyword(request)));
         return "restaurants";
     }
+
+    @PostMapping("/vote")
+    public String voteForRestaurant(Model model, @RequestParam("id") Long restaurantId) {
+        restaurantService.setButtonClicked();
+        User user = userService.get(SecurityUtil.authUserId());
+        restaurantService.deleteVote(user.getRestaurant());
+        userService.addVote(user, restaurantService.get(restaurantId));
+        restaurantService.addVote(restaurantId);
+
+        return "redirect:/restaurants";
+    }
+
 }

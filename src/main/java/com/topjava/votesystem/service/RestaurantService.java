@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RestaurantService {
@@ -17,6 +20,7 @@ public class RestaurantService {
     private static final Logger log = LoggerFactory.getLogger(RestaurantService.class);
     @Autowired
     private final RestaurantRepository repository;
+    private Boolean buttonClicked;
 
     public RestaurantService(RestaurantRepository repository) {
         this.repository = repository;
@@ -56,4 +60,39 @@ public class RestaurantService {
         log.info("search {} with keyword={}", restaurants, keyword);
         return restaurants;
     }
+
+    public Boolean isButtonClicked() {
+        return buttonClicked;
+    }
+
+    public void setButtonClicked() {
+        if (buttonClicked == null) {
+            buttonClicked = true;
+        }
+    }
+
+    public void checkForResetRestaurantVotes() {
+        List<Restaurant> restaurantsToUpdate = getAll().stream()
+                .filter(r -> r.getDateTimeLastVote() != null && r.getDateTimeLastVote().toLocalDate().isBefore(LocalDate.now()))
+                .peek(r -> r.setCountVoices(0))
+                .collect(Collectors.toList());
+        log.info("reset votes from another days {}", restaurantsToUpdate);
+        repository.saveAll(restaurantsToUpdate);
+    }
+
+    public void deleteVote(Restaurant restaurant) {
+        if (restaurant != null && restaurant.getCountVoices() > 0) {
+            restaurant.setCountVoices(restaurant.getCountVoices() - 1);
+            log.info("delete vote from restaurant {}", restaurant);
+            repository.save(restaurant);
+        }
+    }
+
+    public void addVote(long id) {
+        Restaurant restaurant = get(id);
+        restaurant.setCountVoices(restaurant.getCountVoices() + 1);
+        restaurant.setDateTimeLastVote(LocalDateTime.now());
+        repository.save(restaurant);
+    }
+
 }

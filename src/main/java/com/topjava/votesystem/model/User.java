@@ -1,20 +1,21 @@
 package com.topjava.votesystem.model;
 
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.*;
 import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
+import java.time.LocalTime;
+import java.util.*;
 
+//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(name = "users")
 public class User extends AbstractRegisteredEntity {
@@ -44,7 +45,7 @@ public class User extends AbstractRegisteredEntity {
     @Column(name = "datetime_vote", columnDefinition = "timestamp default now()")
     private LocalDateTime dateTimeVote;
 
-
+  //  @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
             uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role"}, name = "uk_user_role")})
@@ -55,6 +56,12 @@ public class User extends AbstractRegisteredEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "restaurant_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
+    private Restaurant restaurant;
+
     public User(String name, String email, String password) {
         super(name, LocalDateTime.now());
         this.email = email;
@@ -62,16 +69,36 @@ public class User extends AbstractRegisteredEntity {
         this.isVoted = false;
     }
 
-    public User(String name, String email, String password, Collection<Role> roles) {
+    public User(Long id, String name, String email, String password, Collection<Role> roles) {
         super(name, LocalDateTime.now());
+        this.id = id;
         this.email = email;
         this.password = password;
         this.isVoted = false;
         setRoles(roles);
     }
 
+    public User(Long id, String name, String email, String password, Role... roles) {
+        super(name, LocalDateTime.now());
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.isVoted = false;
+        List.of(roles);
+    }
+
+
     public User() {
 
+    }
+
+
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
     public Long getId() {
@@ -127,6 +154,13 @@ public class User extends AbstractRegisteredEntity {
 
     public boolean isNew() {
         return this.id == null;
+    }
+
+    public boolean isVoteToday() {
+        if (getDateTimeVote() == null) return true;
+        if (LocalDateTime.now().toLocalDate().equals(getDateTimeVote().toLocalDate()) &&
+                LocalDateTime.now().toLocalTime().isAfter(LocalTime.of(20, 0))) return false;
+        return true;
     }
 
     @Override

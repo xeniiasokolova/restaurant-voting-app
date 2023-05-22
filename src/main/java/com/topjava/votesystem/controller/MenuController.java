@@ -61,4 +61,6 @@ public class MenuController {
         model.addAttribute("dishes", dishService.search(restaurantId, ServletUtil.getKeyword(request)));
         return "menu";
     }
+
+
 }
